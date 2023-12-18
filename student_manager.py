@@ -1,3 +1,4 @@
+from _ctypes_test import func
 
 
 class StudentManager:
@@ -10,6 +11,12 @@ class StudentManager:
             raise ValueError("Student ID must be unique")
         self.validate_name(name)
         self.validate_grade(grade)
+
+    def func(x):
+        return x + 1
+
+    def test_answer():
+        assert func(3) == 5
 
     def validate_update_grade(self, student_id, new_grade):
         self.validate_student_id(student_id)

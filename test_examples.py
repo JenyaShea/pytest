@@ -11,16 +11,22 @@ def student_manager():
 # Unit-тест
 def test_add_student(student_manager):
     student_manager.add_student(1, 'Dayna', 90)
-    assert student_manager.get_student_info(1) == {'name': 'Dayna', 'grade': 900}
+    assert student_manager.get_student_info(1) == {'name': 'Dayna', 'grade': 90}
 
+# Unit-тестr
+def test_remove_student(student_manager):
+    student_manager.add_student(4, 'Kirill', 43)
+    assert student_manager.get_student_info(4) == {'name': 'Kirill', 'grade': 43}
+    student_manager.remove_student(4)
+    assert student_manager.get_student_info(1) is None
 
 # Интеграционный тест
 def test_add_and_update_grade(student_manager):
     student_manager.add_student(11, 'Anastasia', 90)
-    assert student_manager.get_student_info(1) == {'name': 'Anastasia', 'grade': 90}
+    assert student_manager.get_student_info(11) == {'name': 'Anastasia', 'grade': 90}
 
-    student_manager.update_grade(1, 95)
-    assert student_manager.get_student_info(1) == {'name': 'Anastasia', 'grade': 95}
+    student_manager.update_grade(11, 95)
+    assert student_manager.get_student_info(11) == {'name': 'Anastasia','grade': 95}
 
 
 # Функциональный тест
@@ -29,27 +35,29 @@ def test_student_manager_functionality(student_manager):
     student_manager.add_student(2, 'Maxim', 44)
 
     assert student_manager.get_student_info(1) == {'name': 'Valentin', 'grade': 90}
-    assert student_manager.get_student_info(2) == {'name': 'Maxim', 'grade': 85}
+    assert student_manager.get_student_info(2) == {'name': 'Maxim', 'grade': 44}
 
     student_manager.update_grade(2, 88)
     assert student_manager.get_student_info(2) == {'name': 'Maxim', 'grade': 88}
 
     student_manager.remove_student(2)
-    assert student_manager.get_student_info(1) is None
+    assert student_manager.get_student_info(2) is None
 
     all_students = student_manager.get_all_students()
     assert len(all_students) == 1
-    assert all_students == {2: {'name': 'Maxim', 'grade': 88}}
+    assert all_students == {1:{'name': 'Valentin', 'grade': 90}}
+    print()
+    print(all_students)
 
 
 # Параметризованный тест
-@pytest.mark.parametrize("student_id, name, grade", [
-    (1, 'Alexander', 86),
-    (2, 'Nadezhda', 88),
+@pytest.mark.parametrize("student_id, name, grade, expected_result", [
+    (1, 'Alexander', 86, {'name': 'Alexander','grade': 86} ),
+    (2, 'Nadezhda', 88, {'grade': 88, 'name': 'Nadezhda'}),
 ])
-def test_parameterized_add_student(student_manager, student_id, name, grade):
+def test_parameterized_add_student(student_manager, student_id, name, grade,expected_result):
     student_manager.add_student(student_id, name, grade)
-    assert student_manager.get_student_info(student_id) == {'name': name, 'grade': grade+1}
+    assert student_manager.get_student_info(student_id) == expected_result
 
 
 # Использование моков и заглушек
@@ -57,9 +65,9 @@ def test_remove_student_with_mock(student_manager):
     student_manager.add_student(1, 'Nikita', 90)
 
     with patch('student_manager.StudentManager.remove_student_from_database') as mock_remove_student:
-        student_manager.remove_student(2)
+        student_manager.remove_student(1)
 
-        mock_remove_student.assert_called_once_with(2)
+        mock_remove_student.assert_called_once_with(1)
 
     assert student_manager.get_student_info(1) is None
 
@@ -74,6 +82,7 @@ def test_add_student_duplicate_id(student_manager):
     student_manager.add_student(1, 'Valentin', 90)
     with pytest.raises(ValueError, match="Student ID must be unique"):
         student_manager.add_student(1, 'Maxim', 85)
+
 
 
 def test_update_grade_invalid_input(student_manager):
